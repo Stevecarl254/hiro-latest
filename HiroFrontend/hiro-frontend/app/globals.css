@@ -1,0 +1,45 @@
+/* ==============================
+   Tailwind Directives
+   ============================== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==============================
+   CSS Variables
+   ============================== */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-sans: 'Geist Sans', Arial, Helvetica, sans-serif;
+  --font-mono: 'Geist Mono', monospace;
+}
+
+/* Optional: Custom theme vars for JS use */
+@layer base {
+  :root {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-sans: var(--font-sans);
+    --font-mono: var(--font-mono);
+  }
+}
+
+/* ==============================
+   Dark Mode
+   ============================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* ==============================
+   Base Body Styling
+   ============================== */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
