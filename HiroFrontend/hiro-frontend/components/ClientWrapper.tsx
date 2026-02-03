@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 import Footer from "./FooterSection";
+import ErrorBoundary from "./ErrorBoundary";
 import { ReactNode } from "react";
 
 export default function ClientWrapper({ children }: { children: ReactNode }) {
@@ -24,12 +25,12 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
   );
 
   return (
-    <>
+    <ErrorBoundary>
       {!hideNavbarFooter && <Navbar />}
       <main className={!hideNavbarFooter ? "pt-20 min-h-[calc(100vh-80px)]" : "min-h-screen"}>
         {children}
       </main>
       {!hideNavbarFooter && <Footer />}
-    </>
+    </ErrorBoundary>
   );
 }

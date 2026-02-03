@@ -1,4 +1,4 @@
-// Change this to your production backend URL
+// Backend API base URL - uses environment variable in production
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export default API_BASE_URL;

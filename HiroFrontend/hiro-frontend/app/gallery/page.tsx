@@ -17,24 +17,24 @@ const GalleryPage = () => {
   const [error, setError] = useState("");
 
 
-useEffect(() => {
-  const fetchGallery = async () => {
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    const fetchGallery = async () => {
+      setLoading(true);
+      setError("");
 
-    try {
-      const res = await axiosInstance.get("/gallery");
-      setGalleryItems(res.data); // assuming your backend returns an array directly
-    } catch (err: any) {
-      console.error("Failed to fetch gallery:", err);
-      setError("Failed to load gallery.");
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        const res = await axiosInstance.get("/gallery");
+        setGalleryItems(res.data); // assuming your backend returns an array directly
+      } catch (err: any) {
+        console.error("Failed to fetch gallery:", err);
+        setError("Failed to load gallery.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchGallery();
-}, []);
+    fetchGallery();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 py-16 px-6">
@@ -76,7 +76,7 @@ useEffect(() => {
               >
                 <div className="relative">
                   <img
-                    src={`http://localhost:5000${item.imageUrl}`}
+                    src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}${item.imageUrl}`}
                     alt={item.title}
                     className="w-full h-64 object-cover"
                   />

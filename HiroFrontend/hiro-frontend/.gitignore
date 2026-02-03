@@ -20,6 +20,12 @@ routes-manifest.json
 # Dependencies
 node_modules/
 
+# Environment files (NEVER commit these)
+.env
+.env.local
+.env.*.local
+.env.production.local
+
 # Misc
 .DS_Store
 *.tsbuildinfo

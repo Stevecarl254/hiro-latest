@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const rawBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"; // frontend host
+const rawBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"; // backend API host
 let baseURL = rawBase.replace(/\/+$/g, ""); // remove trailing slash
 
 const axiosInstance = axios.create({
