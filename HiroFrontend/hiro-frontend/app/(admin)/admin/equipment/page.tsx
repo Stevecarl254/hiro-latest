@@ -94,8 +94,12 @@ export default function AdminEquipment() {
       setNewSize("");
       setSelectedCategory(newCategory);
       setCurrentPage(1);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setNotification({
+        type: "error",
+        message: err.response?.data?.error || "Failed to add equipment. Check console.",
+      });
     }
   };
 
