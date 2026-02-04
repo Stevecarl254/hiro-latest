@@ -101,7 +101,7 @@ export default function HeroSection() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 hidden md:flex flex-col items-center"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center"
       >
         <span className="text-xs tracking-widest text-white/70 mb-2">
           SCROLL DOWN

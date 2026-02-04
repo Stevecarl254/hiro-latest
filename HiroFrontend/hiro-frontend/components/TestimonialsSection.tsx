@@ -61,7 +61,7 @@ export default function TestimonialSection() {
         </h2>
 
         {/* Slider Container */}
-        <div className="relative overflow-hidden h-72 sm:h-80 md:h-96">
+        <div className="relative overflow-hidden min-h-[350px] sm:min-h-[400px] md:h-96">
           <AnimatePresence initial={false}>
             <motion.div
               key={testimonials[current].id}

@@ -30,7 +30,7 @@ export default function HowToHireSection() {
   ];
 
   return (
-    <section className="relative w-full py-12 sm:py-16 bg-gradient-to-br from-yellow-50 via-white to-yellow-100 overflow-hidden">
+    <section className="relative w-full py-12 sm:py-16 bg-gradient-to-br from-yellow-50 via-white to-yellow-100 overflow-x-hidden">
       {/* Background shapes */}
       <div className="absolute -top-32 -left-32 w-64 sm:w-80 h-64 sm:h-80 bg-yellow-200 rounded-full opacity-30 animate-pulse-slow"></div>
       <div className="absolute -bottom-32 -right-32 w-64 sm:w-80 h-64 sm:h-80 bg-yellow-300 rounded-full opacity-20 animate-ping-slow"></div>

@@ -1,0 +1,308 @@
+"use client";
+
+import axiosInstance from "@/lib/axiosInstance"
+import { useState, ChangeEvent, useEffect } from "react";
+import { FaClipboardList, FaPhoneAlt, FaEnvelope, FaWhatsapp, FaCheckCircle } from "react-icons/fa";
+import { GiChefToque } from "react-icons/gi";
+
+const GetQuoteClient = () => {
+    const [selectedQuote, setSelectedQuote] = useState<"Event" | "Equipment" | "EquipmentRepair" | "Staff" | null>(null);
+    const [form, setForm] = useState({
+        fullName: "",
+        email: "",
+        phoneNumber: "",
+        quoteType: "",
+        staffType: "",
+        eventType: "",
+        eventDate: "",
+        guests: "",
+        location: "",
+        details: "",
+        equipmentType: "",
+        equipmentQuantity: "",
+        rentalDate: "",
+    });
+    const [success, setSuccess] = useState(false);
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await axiosInstance.post("/api/quotes", form);
+
+            setSuccess(true);
+            setForm({
+                fullName: "",
+                email: "",
+                phoneNumber: "",
+                quoteType: "",
+                staffType: "",
+                eventType: "",
+                eventDate: "",
+                guests: "",
+                location: "",
+                details: "",
+                equipmentType: "",
+                equipmentQuantity: "",
+                rentalDate: "",
+            });
+
+            setSelectedQuote(null);
+        } catch (err: any) {
+            console.error("Failed to submit quote:", err);
+        }
+    };
+    useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => setSuccess(false), 4000);
+            return () => clearTimeout(timer);
+        }
+    }, [success]);
+
+    const quoteButtons: { label: string; type: "Event" | "Equipment" | "EquipmentRepair" | "Staff" }[] = [
+        { label: "Event Quote", type: "Event" },
+        { label: "Equipment for hire Quote", type: "Equipment" },
+        { label: "Equipment Repair Quote", type: "EquipmentRepair" },
+        { label: "Staff Quote", type: "Staff" },
+    ];
+
+    const staffOptions = ["Production", "Cook", "Waiter", "Bartender", "Hostess"];
+
+    return (
+        <div className="relative bg-white dark:bg-[#0b1120] text-gray-800 dark:text-gray-100 py-16 min-h-screen overflow-x-hidden transition-colors duration-300">
+            <GiChefToque className="absolute top-0 right-0 text-orange-200 dark:text-orange-900/20 text-[15rem] md:text-[18rem] pointer-events-none -z-10" />
+            <GiChefToque className="absolute bottom-0 left-0 text-[#001f3f]/10 dark:text-[#5cc3ff]/5 text-[15rem] md:text-[18rem] pointer-events-none -z-10" />
+
+            {success && (
+                <div className="fixed top-6 right-4 z-50 bg-white dark:bg-[#1e293b] border-l-4 border-orange-500 shadow-lg rounded-lg px-4 py-3 flex items-center gap-3 animate-slide-in">
+                    <FaCheckCircle className="text-orange-500 text-2xl" />
+                    <div>
+                        <p className="font-semibold text-orange-600 dark:text-orange-400">Request Submitted!</p>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">Our team will contact you soon with a custom quote.</p>
+                    </div>
+                </div>
+            )}
+
+            <div className="max-w-5xl mx-auto text-center mb-12 px-4">
+                <div className="inline-flex flex-col md:flex-row items-center justify-center gap-3 bg-white dark:bg-[#1e293b] shadow-md px-4 md:px-6 py-3 rounded-full border border-orange-400 dark:border-orange-500">
+                    <FaClipboardList className="text-orange-500 text-3xl" />
+                    <h1 className="text-2xl md:text-3xl font-bold text-[#001f3f] dark:text-[#5cc3ff]">Request a Quote</h1>
+                </div>
+                <p className="mt-4 md:mt-6 text-base md:text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+                    Choose the type of quote you need and provide your details below. Our team will get back with a personalized offer.
+                </p>
+            </div>
+
+            <section className="max-w-5xl mx-auto px-4 mb-12 text-center flex flex-col items-center gap-6 relative">
+                <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-6 w-full">
+                    {quoteButtons.map((btn) => (
+                        <button
+                            key={btn.type}
+                            onClick={() => {
+                                setSelectedQuote(btn.type);
+                                setForm({ ...form, quoteType: btn.type });
+                            }}
+                            className={`flex-1 px-4 md:px-6 py-2 md:py-3 rounded-full font-semibold text-base md:text-lg transition-all duration-300 shadow-lg border-2 ${selectedQuote === btn.type
+                                ? "bg-[#001f3f] dark:bg-[#5cc3ff] text-white dark:text-[#001f3f] border-orange-500"
+                                : "bg-white dark:bg-transparent text-[#001f3f] dark:text-[#5cc3ff] border-orange-500 hover:bg-orange-500 hover:text-white"
+                                }`}
+                        >
+                            {btn.label}
+                        </button>
+                    ))}
+                </div>
+
+                {!selectedQuote && (
+                    <div className="flex flex-col items-center mt-6 md:mt-10 animate-pulse text-orange-500">
+                        <span className="mt-2 font-bold text-center text-sm md:text-lg">
+                            Click a button above to get a quote
+                        </span>
+                    </div>
+                )}
+            </section>
+
+            {selectedQuote && (
+                <section className="max-w-5xl mx-auto px-4 mb-12">
+                    <div className="bg-white dark:bg-[#1e293b] p-6 md:p-10 rounded-3xl shadow-2xl border border-orange-500 transition-colors duration-300">
+                        <h2 className="text-2xl md:text-3xl font-bold text-center text-[#001f3f] dark:text-white mb-6 md:mb-10">
+                            Provide Your Details
+                        </h2>
+
+                        <form className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6" onSubmit={handleSubmit}>
+                            {[
+                                { label: "Full Name", name: "fullName", type: "text", placeholder: "Your name", required: true },
+                                { label: "Email Address", name: "email", type: "email", placeholder: "example@email.com", required: true },
+                                { label: "Phone Number", name: "phoneNumber", type: "tel", placeholder: "+254...", required: true },
+                            ].map((input) => (
+                                <div key={input.name}>
+                                    <label className="block mb-1 md:mb-2 font-semibold text-[#001f3f] dark:text-white">{input.label}</label>
+                                    <input
+                                        type={input.type}
+                                        name={input.name}
+                                        value={form[input.name as keyof typeof form]}
+                                        onChange={handleChange}
+                                        placeholder={input.placeholder}
+                                        required={input.required}
+                                        className="w-full p-3 md:p-3 rounded-lg border border-orange-500 bg-white dark:bg-[#0f172a] focus:outline-none focus:ring-2 focus:ring-orange-400 text-[#001f3f] dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-base md:text-base transition-colors"
+                                    />
+                                </div>
+                            ))}
+
+                            {selectedQuote === "Event" && (
+                                <>
+                                    <div>
+                                        <label className="block mb-1 md:mb-2 font-semibold text-[#001f3f] dark:text-white">Event Type</label>
+                                        <select
+                                            name="eventType"
+                                            value={form.eventType}
+                                            onChange={handleChange}
+                                            className="w-full p-3 md:p-3 rounded-lg border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 text-[#001f3f] dark:text-white bg-white dark:bg-[#0f172a] text-base md:text-base transition-colors"
+                                        >
+                                            <option value="">Select an event type</option>
+                                            <option className="bg-white text-black">Wedding</option>
+                                            <option className="bg-white text-black">Corporate Event</option>
+                                            <option className="bg-white text-black">Birthday Party</option>
+                                            <option className="bg-white text-black">Private Dinner</option>
+                                            <option className="bg-white text-black">Other</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block mb-1 md:mb-2 font-semibold text-[#001f3f] dark:text-white">Event Date</label>
+                                        <input
+                                            type="date"
+                                            name="eventDate"
+                                            value={form.eventDate}
+                                            onChange={handleChange}
+                                            className="w-full p-3 md:p-3 rounded-lg border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 text-[#001f3f] dark:text-white bg-white dark:bg-[#0f172a] text-base md:text-base"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block mb-1 md:mb-2 font-semibold text-[#001f3f] dark:text-white">Number of Guests</label>
+                                        <input
+                                            type="number"
+                                            name="guests"
+                                            value={form.guests}
+                                            onChange={handleChange}
+                                            placeholder="e.g. 100"
+                                            className="w-full p-3 md:p-3 rounded-lg border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 text-[#001f3f] dark:text-white bg-white dark:bg-[#0f172a] text-base md:text-base"
+                                        />
+                                    </div>
+                                </>
+                            )}
+
+                            {(selectedQuote === "Equipment" || selectedQuote === "EquipmentRepair") && (
+                                <>
+                                    <div>
+                                        <label className="block mb-1 md:mb-2 font-semibold text-[#001f3f] dark:text-white">Equipment Type</label>
+                                        <input
+                                            type="text"
+                                            name="equipmentType"
+                                            value={form.equipmentType}
+                                            onChange={handleChange}
+                                            placeholder="e.g. Chairs, Tables, Sound System"
+                                            className="w-full p-3 md:p-3 rounded-lg border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 text-[#001f3f] dark:text-white bg-white dark:bg-[#0f172a] text-base md:text-base"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block mb-1 md:mb-2 font-semibold text-[#001f3f] dark:text-white">Quantity</label>
+                                        <input
+                                            type="number"
+                                            name="equipmentQuantity"
+                                            value={form.equipmentQuantity}
+                                            onChange={handleChange}
+                                            placeholder="Number of items"
+                                            className="w-full p-3 md:p-3 rounded-lg border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 text-[#001f3f] dark:text-white bg-white dark:bg-[#0f172a] text-base md:text-base"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block mb-1 md:mb-2 font-semibold text-[#001f3f] dark:text-white">Rental Date</label>
+                                        <input
+                                            type="date"
+                                            name="rentalDate"
+                                            value={form.rentalDate}
+                                            onChange={handleChange}
+                                            className="w-full p-3 md:p-3 rounded-lg border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 text-[#001f3f] dark:text-white bg-white dark:bg-[#0f172a] text-base md:text-base"
+                                        />
+                                    </div>
+                                </>
+                            )}
+
+                            {selectedQuote === "Staff" && (
+                                <div>
+                                    <label className="block mb-1 md:mb-2 font-semibold text-[#001f3f] dark:text-white">Staff Type</label>
+                                    <select
+                                        name="staffType"
+                                        value={form.staffType}
+                                        onChange={handleChange}
+                                        className="w-full p-3 md:p-3 rounded-lg border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 text-[#001f3f] dark:text-white bg-white dark:bg-[#0f172a] text-base md:text-base transition-colors"
+                                    >
+                                        <option value="">Select staff type</option>
+                                        {staffOptions.map((s) => (
+                                            <option key={s} className="bg-white text-black">{s}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            <div className="md:col-span-2">
+                                <label className="block mb-1 md:mb-2 font-semibold text-[#001f3f] dark:text-white">Location / Venue</label>
+                                <input
+                                    type="text"
+                                    name="location"
+                                    value={form.location}
+                                    onChange={handleChange}
+                                    placeholder="Venue or address"
+                                    className="w-full p-3 md:p-3 rounded-lg border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 text-[#001f3f] dark:text-white bg-white dark:bg-[#0f172a] text-base md:text-base"
+                                />
+                            </div>
+
+                            <div className="md:col-span-2">
+                                <label className="block mb-1 md:mb-2 font-semibold text-[#001f3f] dark:text-white">Special Requests / Additional Details</label>
+                                <textarea
+                                    name="details"
+                                    value={form.details}
+                                    onChange={handleChange}
+                                    rows={5}
+                                    placeholder="Tell us more..."
+                                    className="w-full p-3 md:p-3 rounded-lg border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 text-[#001f3f] dark:text-white bg-white dark:bg-[#0f172a] text-base md:text-base"
+                                ></textarea>
+                            </div>
+
+                            <div className="md:col-span-2 text-center mt-4 md:mt-6">
+                                <button
+                                    type="submit"
+                                    className="bg-orange-500 text-white px-8 md:px-12 py-3 md:py-4 rounded-full font-semibold text-base md:text-lg hover:bg-white hover:text-[#001f3f] border-2 border-orange-500 transition-all duration-300 shadow-lg active:scale-95"
+                                >
+                                    Submit Request
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            )}
+
+            <section className="py-12 md:py-16 px-4 md:px-6 text-center">
+                <div className="max-w-3xl mx-auto bg-[#001f3f] rounded-2xl shadow-md p-6 md:p-10 border border-orange-500">
+                    <h3 className="text-xl md:text-2xl font-semibold text-white mb-4 md:mb-6">Prefer to talk to us directly?</h3>
+                    <p className="text-white mb-6 md:mb-8 text-sm md:text-base">You can contact us anytime through the following channels:</p>
+                    <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-8 text-base md:text-lg">
+                        <div className="flex items-center gap-2 justify-center text-white">
+                            <FaPhoneAlt className="text-orange-500" /> <span>+254 722 440 643</span>
+                        </div>
+                        <div className="flex items-center gap-2 justify-center text-white">
+                            <FaEnvelope className="text-orange-500" /> <span>info@hiroservices.co.ke</span>
+                        </div>
+                        <div className="flex items-center gap-2 justify-center text-white">
+                            <FaWhatsapp className="text-orange-500" /> <span>+254 796 273 218</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    );
+};
+
+export default GetQuoteClient;

@@ -50,9 +50,8 @@ export default function GallerySection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
-              className={`flex flex-col md:flex-row items-center gap-4 sm:gap-6 md:gap-10 ${
-                index % 2 === 1 ? "md:flex-row-reverse" : ""
-              }`}
+              className={`flex flex-col md:flex-row items-center gap-4 sm:gap-6 md:gap-10 ${index % 2 === 1 ? "md:flex-row-reverse" : ""
+                }`}
             >
               {/* Image */}
               <div className="relative w-full md:w-1/2 h-56 sm:h-64 md:h-[400px] overflow-hidden rounded-3xl shadow-2xl">
@@ -60,7 +59,7 @@ export default function GallerySection() {
                 <div
                   className="w-full h-full overflow-hidden rounded-3xl"
                   style={{
-                    clipPath: "polygon(0 0, 100% 5%, 100% 95%, 0% 100%)",
+                    clipPath: "polygon(0 0, 100% 2%, 100% 98%, 0% 100%)",
                   }}
                 >
                   <Image

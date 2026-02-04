@@ -124,21 +124,20 @@ const Navbar: React.FC = () => {
 
   return (
     <header
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled
+      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled
           ? "bg-gray-200/40 backdrop-blur-lg shadow-sm border-b border-white/30"
           : "bg-gray-200"
-      }`}
+        }`}
     >
       <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3 font-['Figtree']">
-     {/* Logo */}
-<Link href="/" className="flex items-center">
-  <img
-  src="/logo.png"
-  alt="Hiro Catering"
-  className="h-14 w-auto object-contain scale-150"
-/>
-</Link>
+        {/* Logo */}
+        <Link href="/" className="flex items-center">
+          <img
+            src="/logo.png"
+            alt="Hiro Catering"
+            className="h-10 sm:h-14 w-auto object-contain"
+          />
+        </Link>
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-10">
           {navItems.map((item) =>
@@ -146,32 +145,28 @@ const Navbar: React.FC = () => {
               <div key="services" className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className={`flex items-center gap-1 font-medium text-[#001f3f] group ${
-                    active === "Services" ? "text-[#5cc3ff]" : ""
-                  }`}
+                  className={`flex items-center gap-1 font-medium text-[#001f3f] group ${active === "Services" ? "text-[#5cc3ff]" : ""
+                    }`}
                 >
                   <span>Services</span>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-300 ${
-                      dropdownOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform duration-300 ${dropdownOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
                 <div
-                  className={`absolute left-0 mt-3 w-64 bg-white shadow-lg rounded-md border border-gray-100 transition-all duration-300 ${
-                    dropdownOpen
+                  className={`absolute left-0 mt-3 w-64 bg-white shadow-lg rounded-md border border-gray-100 transition-all duration-300 ${dropdownOpen
                       ? "opacity-100 translate-y-0 visible"
                       : "opacity-0 -translate-y-2 invisible"
-                  }`}
+                    }`}
                 >
                   {services.map((service) => (
                     <Link
                       key={service.name}
                       href={service.path}
-                      className={`block px-4 py-2 text-sm text-[#001f3f] hover:bg-gray-100 ${
-                        activeService === service.name ? "text-[#5cc3ff]" : ""
-                      }`}
+                      className={`block px-4 py-2 text-sm text-[#001f3f] hover:bg-gray-100 ${activeService === service.name ? "text-[#5cc3ff]" : ""
+                        }`}
                       onClick={() => handleLinkClick("Services")}
                     >
                       {service.name}
@@ -184,9 +179,8 @@ const Navbar: React.FC = () => {
                 key={item.name}
                 href={item.path}
                 onClick={() => handleLinkClick(item.name)}
-                className={`font-medium text-[#001f3f] transition-colors relative group ${
-                  active === item.name ? "text-[#FF6600]" : ""
-                }`}
+                className={`font-medium text-[#001f3f] transition-colors relative group ${active === item.name ? "text-[#FF6600]" : ""
+                  }`}
               >
                 {item.name}
               </Link>
@@ -223,11 +217,10 @@ const Navbar: React.FC = () => {
 
                 {/* Profile Dropdown */}
                 <div
-                  className={`absolute right-0 mt-3 w-36 bg-white shadow-lg rounded-md border border-gray-100 transition-all duration-300 ${
-                    profileOpen
+                  className={`absolute right-0 mt-3 w-36 bg-white shadow-lg rounded-md border border-gray-100 transition-all duration-300 ${profileOpen
                       ? "opacity-100 translate-y-0 visible"
                       : "opacity-0 -translate-y-2 invisible"
-                  }`}
+                    }`}
                 >
                   <Link
                     href="/profile"
@@ -282,7 +275,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-gray-100 px-6 py-3 space-y-2">
+        <div className="md:hidden bg-gray-100 px-6 py-3 space-y-2 max-h-[85vh] overflow-y-auto border-t border-gray-200 shadow-inner">
           {navItems.map((item) =>
             item.name === "Services" ? (
               <div key="mobile-services" className="space-y-1">
@@ -292,9 +285,8 @@ const Navbar: React.FC = () => {
                 >
                   Services
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-300 ${
-                      mobileServiceOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform duration-300 ${mobileServiceOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
                 {mobileServiceOpen && (
@@ -317,9 +309,8 @@ const Navbar: React.FC = () => {
                 key={item.name}
                 href={item.path === "#" ? "/" : item.path}
                 onClick={() => handleLinkClick(item.name)}
-                className={`block text-[#FF6600] font-medium hover:text-[#e65c00] ${
-                  active === item.name ? "text-[#FF6600]" : ""
-                }`}
+                className={`block text-[#FF6600] font-medium hover:text-[#e65c00] ${active === item.name ? "text-[#FF6600]" : ""
+                  }`}
               >
                 {item.name}
               </Link>
