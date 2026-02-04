@@ -45,15 +45,15 @@ export default function AdminEquipment() {
   } | null>(null);
 
 
-// Fetch all equipment
-const fetchEquipment = async () => {
-  try {
-    const res = await axiosInstance.get("/equipment");
-    setEquipment(res.data.data || []);
-  } catch (err: any) {
-    console.error("Error fetching equipment:", err);
-  }
-};
+  // Fetch all equipment
+  const fetchEquipment = async () => {
+    try {
+      const res = await axiosInstance.get("/api/equipment");
+      setEquipment(res.data.data || []);
+    } catch (err: any) {
+      console.error("Error fetching equipment:", err);
+    }
+  };
 
   useEffect(() => {
     fetchEquipment();
@@ -78,13 +78,13 @@ const fetchEquipment = async () => {
       return;
     }
 
-   try {
-  const res = await axiosInstance.post("/equipment", {
-    name: newName,
-    type: newType,
-    category: newCategory,
-    size: newSize,
-  });
+    try {
+      const res = await axiosInstance.post("/api/equipment", {
+        name: newName,
+        type: newType,
+        category: newCategory,
+        size: newSize,
+      });
 
       setEquipment((prev) => [...prev, res.data]);
       setShowModal(false);
@@ -99,22 +99,22 @@ const fetchEquipment = async () => {
     }
   };
 
- // Handle delete
-const handleDeleteEquipment = (id: string) => {
-  setNotification({
-    type: "confirm",
-    message: "Are you sure you want to delete this equipment?",
-    onConfirm: async () => {
-      try {
-        await axiosInstance.delete(`/equipment/${id}`);
-        setEquipment((prev) => prev.filter((eq) => eq._id !== id));
-        setNotification(null);
-      } catch (err) {
-        console.error("Failed to delete equipment:", err);
-      }
-    },
-  });
-};
+  // Handle delete
+  const handleDeleteEquipment = (id: string) => {
+    setNotification({
+      type: "confirm",
+      message: "Are you sure you want to delete this equipment?",
+      onConfirm: async () => {
+        try {
+          await axiosInstance.delete(`/api/equipment/${id}`);
+          setEquipment((prev) => prev.filter((eq) => eq._id !== id));
+          setNotification(null);
+        } catch (err) {
+          console.error("Failed to delete equipment:", err);
+        }
+      },
+    });
+  };
 
   // Filter and search
   const filteredEquipment = equipment
@@ -166,11 +166,10 @@ const handleDeleteEquipment = (id: string) => {
           <button
             key={cat.name}
             onClick={() => { setSelectedCategory(cat.name); setCurrentPage(1); }}
-            className={`px-6 py-2 rounded-full font-semibold border transition-colors flex items-center gap-2 ${
-              selectedCategory === cat.name
-                ? "bg-[#00b8e6] text-white border-[#00b8e6]"
-                : "bg-white text-[#001f3f] border-gray-300 hover:bg-[#00b8e6] hover:text-white"
-            }`}
+            className={`px-6 py-2 rounded-full font-semibold border transition-colors flex items-center gap-2 ${selectedCategory === cat.name
+              ? "bg-[#00b8e6] text-white border-[#00b8e6]"
+              : "bg-white text-[#001f3f] border-gray-300 hover:bg-[#00b8e6] hover:text-white"
+              }`}
           >
             {cat.icon} {cat.name}
           </button>
@@ -220,11 +219,10 @@ const handleDeleteEquipment = (id: string) => {
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`px-4 py-2 rounded border ${
-                  currentPage === i + 1
-                    ? "bg-[#00b8e6] text-white border-[#00b8e6]"
-                    : "bg-white border-gray-300"
-                }`}
+                className={`px-4 py-2 rounded border ${currentPage === i + 1
+                  ? "bg-[#00b8e6] text-white border-[#00b8e6]"
+                  : "bg-white border-gray-300"
+                  }`}
               >
                 {i + 1}
               </button>
