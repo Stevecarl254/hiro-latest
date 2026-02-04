@@ -30,35 +30,35 @@ const ContactPage: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
 
-  try {
-    const res = await axiosInstance.post("/messages", formData);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    if (res.status === 201 || res.status === 200) {
-      setSuccess(true);
-      setFormData({
-        fullName: "",
-        email: "",
-        subject: "",
-        message: "",
-      });
-    } else {
-      setError("Failed to send message. Please try again.");
-    }
-  } catch (err: any) {
-    setError(
-      err.response?.data?.message ||
+    try {
+      const res = await axiosInstance.post("/api/messages", formData);
+
+      if (res.status === 201 || res.status === 200) {
+        setSuccess(true);
+        setFormData({
+          fullName: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        setError("Failed to send message. Please try again.");
+      }
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
         "Failed to send message. Please try again."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-white text-[#001f3f] relative">
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-20 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12">
@@ -73,27 +73,27 @@ const handleSubmit = async (e: React.FormEvent) => {
             get back to you shortly.
           </p>
 
-         <div className="space-y-4 flex flex-col items-center md:items-start">
-  <div className="flex items-center gap-3">
-    <MapPin className="w-5 h-5 text-orange-500" />
-    <span>Nairobi, Kenya</span>
-  </div>
+          <div className="space-y-4 flex flex-col items-center md:items-start">
+            <div className="flex items-center gap-3">
+              <MapPin className="w-5 h-5 text-orange-500" />
+              <span>Nairobi, Kenya</span>
+            </div>
 
-  <div className="flex items-center gap-3">
-    <Phone className="w-5 h-5 text-orange-500" />
-    <span>+254 722 440 643</span>
-  </div>
+            <div className="flex items-center gap-3">
+              <Phone className="w-5 h-5 text-orange-500" />
+              <span>+254 722 440 643</span>
+            </div>
 
-  <div className="flex items-center gap-3">
-    <Phone className="w-5 h-5 text-orange-500" />
-    <span>+254 796 273 218</span>
-  </div>
+            <div className="flex items-center gap-3">
+              <Phone className="w-5 h-5 text-orange-500" />
+              <span>+254 796 273 218</span>
+            </div>
 
-  <div className="flex items-center gap-3">
-    <Mail className="w-5 h-5 text-orange-500" />
-    <span>info@hiroservices.co.ke</span>
-  </div>
-</div>
+            <div className="flex items-center gap-3">
+              <Mail className="w-5 h-5 text-orange-500" />
+              <span>info@hiroservices.co.ke</span>
+            </div>
+          </div>
 
           <p className="text-sm text-[#001f3f]/70">
             We typically respond within 24 hours.

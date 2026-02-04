@@ -8,7 +8,7 @@ import { GiChefToque } from "react-icons/gi";
 import Link from "next/link";
 
 interface GalleryItem {
-  _id: string;
+  id: string;
   title: string;
   description: string;
   imageUrl: string;
@@ -26,15 +26,15 @@ export default function GalleryPage() {
   const [error, setError] = useState("");
 
 
-const fetchImages = async () => {
-  try {
-    const res = await axiosInstance.get("/gallery");
-    setImages(res.data);
-  } catch (err) {
-    console.error(err);
-    setError("Failed to load gallery images.");
-  }
-};
+  const fetchImages = async () => {
+    try {
+      const res = await axiosInstance.get("/api/gallery");
+      setImages(res.data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load gallery images.");
+    }
+  };
 
   useEffect(() => {
     fetchImages();
@@ -63,9 +63,9 @@ const fetchImages = async () => {
     formData.append("description", description);
 
     try {
-  await axiosInstance.post("/gallery", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+      await axiosInstance.post("/api/gallery", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       setFile(null);
       setPreview(null);
@@ -82,15 +82,15 @@ const fetchImages = async () => {
   };
 
   const handleDelete = async (id: string) => {
-  try {
-    await axiosInstance.delete(`/gallery/${id}`);
-    setDeleteModalId(null);
-    fetchImages();
-  } catch (err) {
-    console.error(err);
-    setError("Delete failed.");
-  }
-};
+    try {
+      await axiosInstance.delete(`/api/gallery/${id}`);
+      setDeleteModalId(null);
+      fetchImages();
+    } catch (err) {
+      console.error(err);
+      setError("Delete failed.");
+    }
+  };
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto">
@@ -121,18 +121,18 @@ const fetchImages = async () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         {images.map((img, index) => (
           <div
-            key={img._id || index} // fallback key to fix unique key warning
+            key={img.id || index} // fallback key to fix unique key warning
             className="relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition transform hover:scale-105"
           >
-           <img
-  src={`${process.env.NEXT_PUBLIC_API_URL}${img.imageUrl}`}
-  alt={img.title}
-  className="w-full h-64 object-cover"
-/>
+            <img
+              src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}${img.imageUrl}`}
+              alt={img.title}
+              className="w-full h-64 object-cover"
+            />
 
             {/* Delete Button */}
             <button
-              onClick={() => setDeleteModalId(img._id)}
+              onClick={() => setDeleteModalId(img.id)}
               className="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-full shadow hover:bg-red-700 transition"
             >
               <FaTrash />
@@ -201,9 +201,8 @@ const fetchImages = async () => {
               <button
                 onClick={handleUpload}
                 disabled={loading}
-                className={`px-4 py-2 bg-[#5cc3ff] text-[#001f3f] rounded hover:bg-[#66c0ff] transition flex items-center gap-2 ${
-                  loading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`px-4 py-2 bg-[#5cc3ff] text-[#001f3f] rounded hover:bg-[#66c0ff] transition flex items-center gap-2 ${loading ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
               >
                 <FaUpload /> {loading ? "Uploading..." : "Upload"}
               </button>

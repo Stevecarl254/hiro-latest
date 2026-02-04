@@ -12,13 +12,13 @@ interface BookingItem {
 }
 
 interface Booking {
-  id: string; // matches backend
+  id: string; // matches backend UUID
   fullName: string;
   phone: string;
   location: string;
   date: string;
   status: "pending" | "approved" | "rejected";
-  selectedEquipments: BookingItem[];
+  items: BookingItem[]; // Changed from selectedEquipments to items
 }
 
 export default function AdminEquipmentBookingsPage() {
@@ -28,37 +28,57 @@ export default function AdminEquipmentBookingsPage() {
   const [deleteBookingId, setDeleteBookingId] = useState<string | null>(null);
 
 
-const fetchBookings = async () => {
-  try {
-    setLoading(true);
-    const res = await axiosInstance.get("/equipment-bookings");
-    setBookings(res.data.data || []);
-  } catch (err) {
-    console.error("Failed to fetch bookings:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get("/api/equipment-bookings");
+      const data = res.data.data || [];
+      setBookings(data);
+      return data;
+    } catch (err) {
+      console.error("Failed to fetch bookings:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  /* Mark as seen */
+  const markAllAsSeen = (data: Booking[]) => {
+    const seen = JSON.parse(localStorage.getItem("seenBookings") || "[]");
+    let changed = false;
+    data.forEach((b) => {
+      if (!seen.includes(b.id)) {
+        seen.push(b.id);
+        changed = true;
+      }
+    });
+    if (changed) {
+      localStorage.setItem("seenBookings", JSON.stringify(seen));
+      // Refresh the page or broadcast change to update layout badge
+      window.dispatchEvent(new Event("storage"));
+    }
+  };
+
   useEffect(() => {
-    fetchBookings();
+    fetchBookings().then((data) => {
+      if (data) markAllAsSeen(data);
+    });
   }, []);
 
   const handleStatusUpdate = async (id: string, status: "approved" | "rejected") => {
-  try {
-    const route = status === "approved" ? "approve" : "reject";
-    await axiosInstance.put(`/equipment-bookings/${route}/${id}`);
-    setBookings((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, status } : b))
-    );
-  } catch (err) {
-    console.error(`Failed to ${status} booking:`, err);
-  }
-};
+    try {
+      await axiosInstance.patch(`/api/equipment-bookings/${id}/status`, { status });
+      setBookings((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, status } : b))
+      );
+    } catch (err) {
+      console.error(`Failed to ${status} booking:`, err);
+    }
+  };
 
   const handleDeleteBooking = async () => {
     if (!deleteBookingId) return;
     try {
-      await axiosInstance.delete(`/equipment-bookings/${deleteBookingId}`);
+      await axiosInstance.delete(`/api/equipment-bookings/${deleteBookingId}`);
       setBookings((prev) => prev.filter((b) => b.id !== deleteBookingId));
       setDeleteBookingId(null);
     } catch (err) {
@@ -80,11 +100,10 @@ const fetchBookings = async () => {
           <button
             key={f}
             onClick={() => setFilter(f as any)}
-            className={`px-3 sm:px-4 py-1 sm:py-2 rounded-full font-semibold text-sm sm:text-base transition ${
-              filter === f
-                ? "bg-[#00b8e6] text-white"
-                : "bg-white border border-[#001f3f] hover:bg-[#00b8e6] hover:text-white"
-            }`}
+            className={`px-3 sm:px-4 py-1 sm:py-2 rounded-full font-semibold text-sm sm:text-base transition ${filter === f
+              ? "bg-[#00b8e6] text-white"
+              : "bg-white border border-[#001f3f] hover:bg-[#00b8e6] hover:text-white"
+              }`}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
@@ -114,13 +133,12 @@ const fetchBookings = async () => {
                   Booking Date: {new Date(booking.date).toLocaleDateString()}
                 </p>
                 <p
-                  className={`mt-2 inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold ${
-                    booking.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : booking.status === "approved"
+                  className={`mt-2 inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold ${booking.status === "pending"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : booking.status === "approved"
                       ? "bg-green-100 text-green-800"
                       : "bg-red-100 text-red-800"
-                  }`}
+                    }`}
                 >
                   {booking.status.toUpperCase()}
                 </p>
@@ -130,8 +148,8 @@ const fetchBookings = async () => {
               <div className="mb-3 sm:mb-4">
                 <h3 className="font-semibold text-[#001f3f] mb-1 sm:mb-2 text-sm sm:text-base">Booked Items:</h3>
                 <div className="flex flex-wrap gap-1 sm:gap-2 max-h-48 sm:max-h-64 overflow-y-auto">
-                  {booking.selectedEquipments.length > 0 ? (
-                    booking.selectedEquipments.map((item) => (
+                  {booking.items && booking.items.length > 0 ? (
+                    booking.items.map((item) => (
                       <div
                         key={item.id}
                         className="bg-[#00b8e6]/20 text-[#001f3f] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium"

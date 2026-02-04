@@ -30,3 +30,6 @@ node_modules/
 # Misc
 .DS_Store
 *.tsbuildinfo
+*.zip
+hiro-backend/src/uploads/*
+!hiro-backend/src/uploads/.gitkeep

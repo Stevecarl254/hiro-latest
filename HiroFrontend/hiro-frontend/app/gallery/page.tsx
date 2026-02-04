@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 interface GalleryItem {
-  _id?: string;
+  id: string; // matches backend UUID
   title: string;
   description?: string;
   imageUrl: string;
@@ -23,8 +23,8 @@ const GalleryPage = () => {
       setError("");
 
       try {
-        const res = await axiosInstance.get("/gallery");
-        setGalleryItems(res.data); // assuming your backend returns an array directly
+        const res = await axiosInstance.get("/api/gallery");
+        setGalleryItems(res.data || []); // backend returns array directly
       } catch (err: any) {
         console.error("Failed to fetch gallery:", err);
         setError("Failed to load gallery.");
@@ -69,7 +69,7 @@ const GalleryPage = () => {
           ) : (
             galleryItems.map((item, index) => (
               <motion.div
-                key={item._id || `gallery-${index}`} // fallback key ensures uniqueness
+                key={item.id || `gallery-${index}`} // matches backend UUID
                 className="bg-white rounded-2xl shadow-lg overflow-hidden group cursor-pointer"
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}

@@ -25,6 +25,10 @@ const Equipment = sequelize.define(
             type: DataTypes.STRING,
             allowNull: true,
         },
+        imageUrl: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
     },
     {
         timestamps: true,

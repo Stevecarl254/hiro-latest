@@ -8,11 +8,12 @@ import { FaChair, FaUtensils, FaGift, FaGlassCheers } from "react-icons/fa";
 
 // --- Equipment Interface ---
 interface Equipment {
-  _id: string;
+  id: string; // Updated to match backend UUID
   name: string;
   type: string;
   category: string;
   size?: string;
+  imageUrl?: string;
 }
 
 // --- Categories ---
@@ -100,13 +101,13 @@ function ModalSearch({
   const availableEquipments = modalFiltered.filter((eq) => {
     // Already selected check
     const exists = selectedEquipments.find(
-      (se) => se.id === eq._id
+      (se) => se.id === eq.id
     );
     return !exists;
   });
 
   const handleSelect = (eq: Equipment) => {
-    const exists = selectedEquipments.find((se) => se.id === eq._id);
+    const exists = selectedEquipments.find((se) => se.id === eq.id);
     if (exists) {
       setAlreadySelectedMessage("This equipment is already selected");
       return;
@@ -136,18 +137,18 @@ function ModalSearch({
             availableEquipments.map((eq) => {
               // Check other variants with same name
               const variants = modalFiltered.filter(
-                (v) => v.name === eq.name && v._id !== eq._id
+                (v) => v.name === eq.name && v.id !== eq.id
               );
               const variantText =
                 variants.length > 0
                   ? ` (Also available: ${variants
-                      .map((v) => v.size || v.type || "")
-                      .filter(Boolean)
-                      .join(", ")})`
+                    .map((v) => v.size || v.type || "")
+                    .filter(Boolean)
+                    .join(", ")})`
                   : "";
               return (
                 <div
-                  key={eq._id}
+                  key={eq.id}
                   className="flex justify-between items-center p-2 hover:bg-gray-100 cursor-pointer"
                   onClick={() => handleSelect(eq)}
                 >
@@ -185,13 +186,13 @@ export default function UserEquipment() {
     selectedEquipments: [] as { id: string; name: string; quantity: number }[],
   });
   // Booking message state for showing success or error
-const [bookingMessage, setBookingMessage] = useState<{
-  type: "success" | "error";
-  text: string;
-} | null>(null);
+  const [bookingMessage, setBookingMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [modalSearch, setModalSearch] = useState("");
-// Inside your UserEquipment component, near the other useState hooks
-const [isSubmitting, setIsSubmitting] = useState(false);
+  // Inside your UserEquipment component, near the other useState hooks
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   /* Disable page scroll when modal is open */
   useEffect(() => {
@@ -200,18 +201,18 @@ const [isSubmitting, setIsSubmitting] = useState(false);
   }, [isBookingOpen]);
 
 
-useEffect(() => {
-  const fetchEquipment = async () => {
-    try {
-      const res = await axiosInstance.get("/equipment");
-      setEquipment(res.data.data || []);
-    } catch (err: any) {
-      console.error("Failed to fetch equipment:", err);
-    }
-  };
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      try {
+        const res = await axiosInstance.get("/api/equipment");
+        setEquipment(res.data.data || []);
+      } catch (err: any) {
+        console.error("Failed to fetch equipment:", err);
+      }
+    };
 
-  fetchEquipment();
-}, []);
+    fetchEquipment();
+  }, []);
 
   const filtered = equipment
     .filter((eq) => eq.category === selectedCategory)
@@ -238,84 +239,84 @@ useEffect(() => {
 
   const activeCategory = categories.find((c) => c.name === selectedCategory);
 
-const handleBookingSubmit = async () => {
-  // Prevent double submission
-  if (isSubmitting) return;
+  const handleBookingSubmit = async () => {
+    // Prevent double submission
+    if (isSubmitting) return;
 
-  // Trim inputs safely
-  const fullName = bookingData.fullName?.trim();
-  const phone = bookingData.phone?.trim();
-  const location = bookingData.location?.trim();
-  const date = bookingData.date;
-  const selectedEquipments = bookingData.selectedEquipments || [];
+    // Trim inputs safely
+    const fullName = bookingData.fullName?.trim();
+    const phone = bookingData.phone?.trim();
+    const location = bookingData.location?.trim();
+    const date = bookingData.date;
+    const selectedEquipments = bookingData.selectedEquipments || [];
 
-  // Validate inputs
-  if (!fullName || !phone || !location || !date || selectedEquipments.length === 0) {
-    setBookingMessage({
-      type: "error",
-      text: "Please fill in all fields and select at least one equipment.",
-    });
-    return;
-  }
-
-
-try {
-  setIsSubmitting(true);
-
-  const res = await axiosInstance.post("/equipment-bookings", {
-    fullName,
-    phone,
-    location,
-    date,
-    selectedEquipments,
-    status: "pending", // optional default status
-  });
-
-
-    if (res.data.success) {
-      setBookingMessage({ type: "success", text: "Booking submitted successfully!" });
-      
-      // Reset form
-      setBookingData({
-        fullName: "",
-        phone: "",
-        location: "",
-        date: "",
-        selectedEquipments: [],
+    // Validate inputs
+    if (!fullName || !phone || !location || !date || selectedEquipments.length === 0) {
+      setBookingMessage({
+        type: "error",
+        text: "Please fill in all fields and select at least one equipment.",
       });
-      setModalSearch(""); 
-      
-      // Close modal after short delay
-      setTimeout(() => {
-        setIsBookingOpen(false);
-        setBookingMessage(null);
-      }, 1500);
-    } else {
-      setBookingMessage({ type: "error", text: "Failed to submit booking. Please try again." });
+      return;
     }
-  } catch (err: any) {
-  // Safely log the full error object
-  console.error("Booking submit error:", err);
 
-  // Extract a meaningful message
-  const msg =
-    err?.response?.data?.message || // if server sends { message: "..." }
-    err?.message ||                 // Axios/network error message
-    "An unexpected error occurred. Please try again.";
 
-  setBookingMessage({ type: "error", text: msg });
-} finally {
-    setIsSubmitting(false);
-  }
-};
+    try {
+      setIsSubmitting(true);
+
+      const res = await axiosInstance.post("/api/equipment-bookings", {
+        fullName,
+        phone,
+        location,
+        date,
+        selectedEquipments,
+        status: "pending", // optional default status
+      });
+
+
+      if (res.data.success) {
+        setBookingMessage({ type: "success", text: "Booking submitted successfully!" });
+
+        // Reset form
+        setBookingData({
+          fullName: "",
+          phone: "",
+          location: "",
+          date: "",
+          selectedEquipments: [],
+        });
+        setModalSearch("");
+
+        // Close modal after short delay
+        setTimeout(() => {
+          setIsBookingOpen(false);
+          setBookingMessage(null);
+        }, 1500);
+      } else {
+        setBookingMessage({ type: "error", text: "Failed to submit booking. Please try again." });
+      }
+    } catch (err: any) {
+      // Safely log the full error object
+      console.error("Booking submit error:", err);
+
+      // Extract a meaningful message
+      const msg =
+        err?.response?.data?.message || // if server sends { message: "..." }
+        err?.message ||                 // Axios/network error message
+        "An unexpected error occurred. Please try again.";
+
+      setBookingMessage({ type: "error", text: msg });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleEquipmentToggle = (eq: Equipment) => {
-    const exists = bookingData.selectedEquipments.find((e) => e.id === eq._id);
+    const exists = bookingData.selectedEquipments.find((e) => e.id === eq.id);
     if (exists) {
       setBookingData((prev) => ({
         ...prev,
         selectedEquipments: prev.selectedEquipments.filter(
-          (e) => e.id !== eq._id
+          (e) => e.id !== eq.id
         ),
       }));
     } else {
@@ -323,7 +324,7 @@ try {
         ...prev,
         selectedEquipments: [
           ...prev.selectedEquipments,
-          { id: eq._id, name: eq.name, quantity: 1 },
+          { id: eq.id, name: eq.name, quantity: 1 },
         ],
       }));
     }
@@ -379,11 +380,10 @@ try {
                 setSelectedCategory(cat.name);
                 setCurrentPage(1);
               }}
-              className={`px-4 py-2 rounded-full border font-semibold transition ${
-                selectedCategory === cat.name
-                  ? cat.btn
-                  : "bg-white border-gray-300 hover:bg-[#00b8e6] hover:text-white"
-              }`}
+              className={`px-4 py-2 rounded-full border font-semibold transition ${selectedCategory === cat.name
+                ? cat.btn
+                : "bg-white border-gray-300 hover:bg-[#00b8e6] hover:text-white"
+                }`}
             >
               {cat.name}
             </button>
@@ -406,10 +406,19 @@ try {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {paginated.map((eq) => (
               <motion.div
-                key={eq._id}
+                key={eq.id}
                 whileHover={{ scale: 1.04 }}
                 className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 relative"
               >
+                {eq.imageUrl && (
+                  <div className="relative h-40 mb-3 overflow-hidden rounded-xl">
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}${eq.imageUrl}`}
+                      alt={eq.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 <h4 className="text-lg font-bold text-[#001f3f] mb-3">
                   {eq.name}
                 </h4>
@@ -456,9 +465,8 @@ try {
             <button
               key={i}
               onClick={() => setCurrentPage(i + 1)}
-              className={`px-4 py-2 rounded ${
-                currentPage === i + 1 ? "bg-[#00b8e6] text-white" : "bg-white border"
-              }`}
+              className={`px-4 py-2 rounded ${currentPage === i + 1 ? "bg-[#00b8e6] text-white" : "bg-white border"
+                }`}
             >
               {i + 1}
             </button>
@@ -528,7 +536,7 @@ try {
                           }
                         />
                         <button
-                          onClick={() => handleEquipmentToggle({ _id: eq.id, name: eq.name, type: "", category: "" })}
+                          onClick={() => handleEquipmentToggle({ id: eq.id, name: eq.name, type: "", category: "" })}
                           className="text-red-500 hover:text-red-700 font-bold"
                         >
                           ✕
@@ -539,22 +547,21 @@ try {
                 </div>
               )}
 
-{/* Booking Message Card */}
-{bookingMessage && (
-  <div
-    className={`p-4 mb-4 rounded-lg text-white font-semibold ${
-      bookingMessage.type === "success" ? "bg-green-500" : "bg-red-500"
-    } shadow-md flex items-center justify-between`}
-  >
-    <span>{bookingMessage.text}</span>
-    <button
-      className="font-bold text-white ml-4"
-      onClick={() => setBookingMessage(null)}
-    >
-      ✕
-    </button>
-  </div>
-)}
+              {/* Booking Message Card */}
+              {bookingMessage && (
+                <div
+                  className={`p-4 mb-4 rounded-lg text-white font-semibold ${bookingMessage.type === "success" ? "bg-green-500" : "bg-red-500"
+                    } shadow-md flex items-center justify-between`}
+                >
+                  <span>{bookingMessage.text}</span>
+                  <button
+                    className="font-bold text-white ml-4"
+                    onClick={() => setBookingMessage(null)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
 
               {/* Booking Details */}
               <input
@@ -591,18 +598,18 @@ try {
               />
             </div>
 
-           {/* Footer */}
-      <div className="p-4 md:p-6 border-t sticky bottom-0 bg-white z-10">
-        <button
-          onClick={handleBookingSubmit}
-          className="w-full bg-[#00b8e6] hover:bg-[#0095c7] text-white py-3 rounded-lg font-semibold"
-        >
-          Submit Booking
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+            {/* Footer */}
+            <div className="p-4 md:p-6 border-t sticky bottom-0 bg-white z-10">
+              <button
+                onClick={handleBookingSubmit}
+                className="w-full bg-[#00b8e6] hover:bg-[#0095c7] text-white py-3 rounded-lg font-semibold"
+              >
+                Submit Booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

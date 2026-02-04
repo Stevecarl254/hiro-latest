@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 interface Message {
-  id: number;
+  id: string; // matches backend UUID
   fullName: string;
   email: string;
   subject: string;
@@ -30,22 +30,23 @@ export default function MessagesPage() {
   const [deleteTarget, setDeleteTarget] = useState<Message | null>(null);
   const [error, setError] = useState("");
 
-  const getReadMessages = (): number[] => {
+  const getReadMessages = (): string[] => {
     if (typeof window === "undefined") return [];
     return JSON.parse(localStorage.getItem("readMessages") || "[]");
   };
 
-  const markAsRead = (ids: number[]) => {
+  const markAsRead = (ids: string[]) => {
     const read = getReadMessages();
     ids.forEach((id) => {
       if (!read.includes(id)) read.push(id);
     });
     localStorage.setItem("readMessages", JSON.stringify(read));
+    window.dispatchEvent(new Event("storage"));
   };
 
   const fetchMessages = async () => {
     try {
-      const res = await axiosInstance.get("/messages"); // use axiosInstance
+      const res = await axiosInstance.get("/api/messages"); // use axiosInstance
       const msgs: Message[] = res.data.data || [];
 
       // sort unread first
@@ -94,7 +95,7 @@ export default function MessagesPage() {
     if (!deleteTarget) return;
 
     try {
-      await axiosInstance.delete(`/messages/${deleteTarget.id}`);
+      await axiosInstance.delete(`/api/messages/${deleteTarget.id}`);
       setMessages((prev) => prev.filter((m) => m.id !== deleteTarget.id));
     } catch (err) {
       console.error("Delete failed", err);
@@ -149,9 +150,8 @@ export default function MessagesPage() {
             <div
               key={msg.id}
               id={`msg-${msg.id}`}
-              className={`relative flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-6 cursor-pointer hover:bg-gray-50 transition ${
-                !isRead ? "bg-[#e6f7ff]" : "bg-white"
-              }`}
+              className={`relative flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-6 cursor-pointer hover:bg-gray-50 transition ${!isRead ? "bg-[#e6f7ff]" : "bg-white"
+                }`}
               onClick={() => {
                 setSelectedMessage(msg);
                 markAsRead([msg.id]);

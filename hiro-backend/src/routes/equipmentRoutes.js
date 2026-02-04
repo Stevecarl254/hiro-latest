@@ -1,6 +1,24 @@
 import express from "express";
 import { Equipment } from "../models/index.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const uploadsDir = path.join(__dirname, "../uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadsDir),
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
+});
+const upload = multer({ storage });
 
 const router = express.Router();
 
@@ -16,18 +34,24 @@ router.get("/", async (req, res) => {
 });
 
 // POST new equipment (Admin adds)
-router.post("/", async (req, res) => {
+router.post("/", upload.single("image"), async (req, res) => {
   try {
     const { name, type, category, size } = req.body;
     if (!name || !type || !category) {
+      if (req.file) {
+        fs.unlinkSync(req.file.path); // Clean up uploaded file if validation fails
+      }
       return res.status(400).json({ error: "Name, Type & Category required" });
     }
+
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
     const newEquipment = await Equipment.create({
       name,
       type,
       category,
       size: size || null,
+      imageUrl,
     });
 
     // Emit event to clients via Socket.IO
@@ -36,6 +60,7 @@ router.post("/", async (req, res) => {
     res.status(201).json(newEquipment);
   } catch (err) {
     console.error("Error creating equipment:", err);
+    if (req.file) fs.unlinkSync(req.file.path);
     res.status(500).json({ error: err.message || "Failed to create equipment" });
   }
 });
@@ -61,18 +86,30 @@ router.delete("/:id", async (req, res) => {
 });
 
 // UPDATE equipment by ID
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.single("image"), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, type, category, size } = req.body;
 
     const eq = await Equipment.findByPk(id);
-    if (!eq) return res.status(404).json({ error: "Equipment not found" });
+    if (!eq) {
+      if (req.file) fs.unlinkSync(req.file.path);
+      return res.status(404).json({ error: "Equipment not found" });
+    }
 
     if (name) eq.name = name;
     if (type) eq.type = type;
     if (category) eq.category = category;
     if (size !== undefined) eq.size = size;
+
+    if (req.file) {
+      // Delete old image if exists
+      if (eq.imageUrl) {
+        const oldPath = path.join(uploadsDir, path.basename(eq.imageUrl));
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+      eq.imageUrl = `/uploads/${req.file.filename}`;
+    }
 
     await eq.save();
 
@@ -81,6 +118,7 @@ router.put("/:id", async (req, res) => {
     res.json({ data: eq });
   } catch (err) {
     console.error("Error updating equipment:", err);
+    if (req.file) fs.unlinkSync(req.file.path);
     res.status(500).json({ error: err.message || "Failed to update equipment" });
   }
 });
