@@ -28,6 +28,7 @@ const Equipment = sequelize.define(
     },
     {
         timestamps: true,
+        tableName: "CateringEquipment",
     }
 );
 
