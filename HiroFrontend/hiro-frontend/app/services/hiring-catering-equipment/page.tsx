@@ -408,7 +408,7 @@ export default function UserEquipment() {
               <motion.div
                 key={eq.id}
                 whileHover={{ scale: 1.04 }}
-                className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 relative"
+                className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 relative h-fit"
               >
                 {eq.imageUrl && (
                   <div className="relative h-40 mb-3 overflow-hidden rounded-xl">
@@ -428,7 +428,7 @@ export default function UserEquipment() {
                   </span>
                   {eq.size && (
                     <span className="bg-yellow-100 text-yellow-800 text-sm px-2 py-1 rounded-full">
-                      {eq.size}
+                      Size: {eq.size}
                     </span>
                   )}
                   <span className={`text-sm px-2 py-1 rounded-full ${activeCategory?.badge}`}>
