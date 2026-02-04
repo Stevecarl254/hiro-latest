@@ -49,17 +49,20 @@ export default function RegisterPage() {
     try {
       setLoading(true);
 
-      const res = await fetch("/api/users/register", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, phoneNumber: phone, password })
       });
 
       let data: ApiResponse = {};
-      try {
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
         data = await res.json();
-      } catch {
-        throw new Error("Invalid server response");
+      } else {
+        const text = await res.text();
+        console.error("Non-JSON response:", text);
+        throw new Error(`Server error (${res.status}): Check console for details`);
       }
 
       if (!res.ok) {
@@ -170,9 +173,8 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-xl bg-gradient-to-r from-[#001f3f] to-[#4da6ff] text-white font-semibold shadow-lg transition transform ${
-              loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
-            }`}
+            className={`w-full py-3 rounded-xl bg-gradient-to-r from-[#001f3f] to-[#4da6ff] text-white font-semibold shadow-lg transition transform ${loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
+              }`}
           >
             {loading ? "Registering..." : "Register"}
           </button>

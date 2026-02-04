@@ -35,13 +35,13 @@ export default function LoginPage() {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/users/login`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include", // ✅ IMPORTANT for CORS
+          credentials: "include",
           body: JSON.stringify({
             email: formData.email.toLowerCase(),
             password: formData.password,
@@ -49,16 +49,24 @@ export default function LoginPage() {
         }
       );
 
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.error("Non-JSON response:", text);
+        throw new Error(`Server error (${res.status}): Please check console`);
+      }
 
       if (!res.ok) {
-        throw new Error(data?.message || "Login failed");
+        throw new Error(data?.message || `Login failed (${res.status})`);
       }
 
       const { token, user } = data;
 
       if (!token || !user) {
-        throw new Error("Invalid server response");
+        throw new Error("Invalid response format from server");
       }
 
       // Save auth data
@@ -82,28 +90,24 @@ export default function LoginPage() {
 
   return (
     <div
-      className={`w-full min-h-screen flex items-center justify-center transition-colors ${
-        darkMode ? "bg-[#001f3f]" : "bg-white"
-      }`}
+      className={`w-full min-h-screen flex items-center justify-center transition-colors ${darkMode ? "bg-[#001f3f]" : "bg-white"
+        }`}
     >
       <div
-        className={`relative w-full max-w-md mx-auto p-6 rounded-xl shadow-lg transition-colors ${
-          darkMode ? "bg-[#001f3f]" : "bg-[#f9f9f9]"
-        }`}
+        className={`relative w-full max-w-md mx-auto p-6 rounded-xl shadow-lg transition-colors ${darkMode ? "bg-[#001f3f]" : "bg-[#f9f9f9]"
+          }`}
       >
         <button
           onClick={() => router.push("/")}
-          className={`absolute -top-10 left-0 flex items-center font-semibold transition-colors hover:text-orange-500 ${
-            darkMode ? "text-[#ffa500]" : "text-[#001f3f]"
-          }`}
+          className={`absolute -top-10 left-0 flex items-center font-semibold transition-colors hover:text-orange-500 ${darkMode ? "text-[#ffa500]" : "text-[#001f3f]"
+            }`}
         >
           <ArrowLeft className="w-5 h-5 mr-1" /> Back
         </button>
 
         <h2
-          className={`text-3xl font-bold text-center mb-6 transition-colors ${
-            darkMode ? "text-[#ffa500]" : "text-[#001f3f]"
-          }`}
+          className={`text-3xl font-bold text-center mb-6 transition-colors ${darkMode ? "text-[#ffa500]" : "text-[#001f3f]"
+            }`}
         >
           Login
         </h2>
@@ -117,9 +121,8 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative">
             <Mail
-              className={`absolute top-3 left-3 w-5 h-5 ${
-                darkMode ? "text-[#ffa500]" : "text-[#4da6ff]"
-              }`}
+              className={`absolute top-3 left-3 w-5 h-5 ${darkMode ? "text-[#ffa500]" : "text-[#4da6ff]"
+                }`}
             />
             <input
               type="email"
@@ -127,19 +130,17 @@ export default function LoginPage() {
               value={formData.email}
               onChange={handleChange}
               placeholder="Email *"
-              className={`w-full rounded-xl px-10 py-3 bg-transparent focus:outline-none focus:ring-2 ${
-                darkMode
+              className={`w-full rounded-xl px-10 py-3 bg-transparent focus:outline-none focus:ring-2 ${darkMode
                   ? "text-white placeholder:text-gray-300 focus:ring-[#ffa500]"
                   : "text-[#001f3f] placeholder:text-gray-400 focus:ring-[#001f3f]"
-              }`}
+                }`}
             />
           </div>
 
           <div className="relative">
             <Lock
-              className={`absolute top-3 left-3 w-5 h-5 ${
-                darkMode ? "text-[#ffa500]" : "text-[#4da6ff]"
-              }`}
+              className={`absolute top-3 left-3 w-5 h-5 ${darkMode ? "text-[#ffa500]" : "text-[#4da6ff]"
+                }`}
             />
             <input
               type={showPassword ? "text" : "password"}
@@ -147,18 +148,16 @@ export default function LoginPage() {
               value={formData.password}
               onChange={handleChange}
               placeholder="Password *"
-              className={`w-full rounded-xl px-10 py-3 bg-transparent focus:outline-none focus:ring-2 ${
-                darkMode
+              className={`w-full rounded-xl px-10 py-3 bg-transparent focus:outline-none focus:ring-2 ${darkMode
                   ? "text-white placeholder:text-gray-300 focus:ring-[#ffa500]"
                   : "text-[#001f3f] placeholder:text-gray-400 focus:ring-[#001f3f]"
-              }`}
+                }`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className={`absolute right-3 top-3 ${
-                darkMode ? "text-gray-300" : "text-gray-500"
-              }`}
+              className={`absolute right-3 top-3 ${darkMode ? "text-gray-300" : "text-gray-500"
+                }`}
             >
               {showPassword ? <EyeOff /> : <Eye />}
             </button>
@@ -174,9 +173,8 @@ export default function LoginPage() {
         </form>
 
         <p
-          className={`text-center text-sm mt-5 ${
-            darkMode ? "text-[#ffa500]" : "text-[#001f3f]"
-          }`}
+          className={`text-center text-sm mt-5 ${darkMode ? "text-[#ffa500]" : "text-[#001f3f]"
+            }`}
         >
           Don&apos;t have an account?{" "}
           <Link href="/register" className="font-semibold underline">
